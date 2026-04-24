@@ -1,9 +1,30 @@
-import React from 'react'
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../features/auth/authSlice";
 
-const Login = () => {
+function Login() {
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
+
+  const handleLogin = () => {
+    dispatch(
+      loginUser({
+        email: "test@gmail.com",
+        password: "123456",
+      })
+    );
+  };
+
   return (
-    <div>Login</div>
-  )
+    <div>
+      <h1>Login</h1>
+
+      <button onClick={handleLogin} disabled={loading}>
+        {loading ? "Logging in..." : "Login"}
+      </button>
+
+      {error && <p>{error}</p>}
+    </div>
+  );
 }
 
-export default Login
+export default Login;
