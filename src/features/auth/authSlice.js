@@ -1,28 +1,30 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginAPI } from "../../services/authService";
-import { initSocket } from "../../services/socket";
+// import { loginAPI } from "../../services/authService";
+import { apiRequest } from "../../services/Api";
 
+// 🔐 LOGIN
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, thunkAPI) => {
     try {
-      const res = await loginAPI(credentials);
+      const res = await apiRequest({
+        endpoint: "users/login",
+        method: "POST",
+        data: credentials,
+      });
 
-      // normalize response based on actual API payload
-      return {
-        user: res.data.data.user,
-        token: res.data.token,
-      };
+      return res.data?.user 
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || error.message,
+      );
     }
   },
 );
-const token = localStorage.getItem("token");
+
 const initialState = {
   user: null,
-  token: token || null,
-  isAuthenticated: !!token,
+  isAuthenticated: false,
   loading: false,
   error: null,
 };
@@ -33,29 +35,24 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
     builder
+
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
+
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log("Login successful:", action.payload);
         state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.user = action.payload;
         state.isAuthenticated = true;
-
-        localStorage.setItem("token", action.payload.token);
-
-        //  use mock for now
-        initSocket("mock");
       })
+
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
