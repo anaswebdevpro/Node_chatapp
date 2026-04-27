@@ -8,10 +8,10 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await loginAPI(credentials);
 
-      //  normalize response
+      // normalize response based on actual API payload
       return {
-        user: res.data.user,
-        token: res.token,
+        user: res.data.data.user,
+        token: res.data.token,
       };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);

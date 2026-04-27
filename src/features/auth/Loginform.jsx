@@ -20,11 +20,17 @@ function LoginForm() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    dispatch(loginUser(formData));
-    navigate("/dashboard");
+    try {
+      const resultAction = await dispatch(loginUser(formData)).unwrap();
+      if (resultAction) {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Failed to login:", err);
+    }
   };
 
   return (
