@@ -1,22 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginAPI } from "../../services/authService";
+import { initSocket } from "../../services/socket";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, thunkAPI) => {
     try {
-      const data = await loginAPI(credentials);
-      return data;
+      const res = await loginAPI(credentials);
+
+      //  normalize response
+      return {
+        user: res.data.user,
+        token: res.token,
+      };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
-  }
+  },
 );
-
+const token = localStorage.getItem("token");
 const initialState = {
   user: null,
-  token: null,
-  isAuthenticated: false,
+  token: token || null,
+  isAuthenticated: !!token,
   loading: false,
   error: null,
 };
@@ -39,12 +45,16 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        console.log("Login successful:", action.payload);
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
 
         localStorage.setItem("token", action.payload.token);
+
+        //  use mock for now
+        initSocket("mock");
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;

@@ -1,9 +1,18 @@
-import React from 'react'
+import ChatLayout from "../features/chat/components/ChatLayout";
+import Sidebar from "../features/chat/components/Sidebar";
+import ChatHeader from "../features/chat/components/ChatHeader";
+import MessageList from "../features/chat/components/MessageList";
+import MessageInput from "../features/chat/components/MessageInput";
 
-const Chat = () => {
+function Chat() {
   return (
-    <div>Chat</div>
-  )
+    <ChatLayout
+      sidebar={<Sidebar />}
+      header={<ChatHeader />}
+      messages={<MessageList />}
+      input={<MessageInput />}
+    />
+  );
 }
 
-export default Chat
+export default Chat;
